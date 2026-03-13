@@ -15,10 +15,17 @@ jobs:
           sudo apt update
           sudo apt install -y curl xmlstarlet
 
-      - name: Crawl sitemap
+      - name: Get sitemap list
         run: |
           curl -s https://www.artkul.com/sitemap_index.xml | \
-          xmlstarlet sel -t -v "//loc" | while read url; do
-            echo "Visiting $url"
-            curl -s -o /dev/null "$url"
-          done
+          xmlstarlet sel -t -v "//loc" > sitemaps.txt
+
+      - name: Crawl sitemaps
+        run: |
+          while read sitemap; do
+            echo "Reading $sitemap"
+            curl -s $sitemap | xmlstarlet sel -t -v "//loc" | while read url; do
+              echo "Visiting $url"
+              curl -s -o /dev/null "$url"
+            done
+          done < sitemaps.txt
