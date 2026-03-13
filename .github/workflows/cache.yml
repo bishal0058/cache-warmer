@@ -15,17 +15,18 @@ jobs:
           sudo apt update
           sudo apt install -y curl xmlstarlet
 
-      - name: Get sitemap list
+      - name: Crawl post sitemap
         run: |
-          curl -A "Mozilla/5.0" -L -s https://www.artkul.com/sitemap_index.xml | \
-          xmlstarlet sel -t -v "//loc" > sitemaps.txt
+          curl -A "Mozilla/5.0" -L https://www.artkul.com/post-sitemap.xml > post.xml
+          xmlstarlet sel -t -v "//loc" post.xml | while read url; do
+            echo "Visiting $url"
+            curl -A "Mozilla/5.0" -L -o /dev/null "$url"
+          done
 
-      - name: Crawl sitemaps
+      - name: Crawl page sitemap
         run: |
-          while read sitemap; do
-            echo "Reading $sitemap"
-            curl -A "Mozilla/5.0" -L -s $sitemap | xmlstarlet sel -t -v "//loc" | while read url; do
-              echo "Visiting $url"
-              curl -A "Mozilla/5.0" -L -s -o /dev/null "$url"
-            done
-          done < sitemaps.txt
+          curl -A "Mozilla/5.0" -L https://www.artkul.com/page-sitemap.xml > page.xml
+          xmlstarlet sel -t -v "//loc" page.xml | while read url; do
+            echo "Visiting $url"
+            curl -A "Mozilla/5.0" -L -o /dev/null "$url"
+          done
