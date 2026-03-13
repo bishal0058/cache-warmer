@@ -1,0 +1,24 @@
+name: Sitemap Cache Warmer
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install tools
+        run: |
+          sudo apt update
+          sudo apt install -y curl xmlstarlet
+
+      - name: Crawl sitemap
+        run: |
+          curl -s https://www.artkul.com/sitemap_index.xml | \
+          xmlstarlet sel -t -v "//loc" | while read url; do
+            echo "Visiting $url"
+            curl -s -o /dev/null "$url"
+          done
