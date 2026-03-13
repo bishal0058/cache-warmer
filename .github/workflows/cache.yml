@@ -17,15 +17,15 @@ jobs:
 
       - name: Get sitemap list
         run: |
-          curl -A "Mozilla/5.0" -s https://www.artkul.com/sitemap_index.xml | \
+          curl -A "Mozilla/5.0" -L -s https://www.artkul.com/sitemap_index.xml | \
           xmlstarlet sel -t -v "//loc" > sitemaps.txt
 
       - name: Crawl sitemaps
         run: |
           while read sitemap; do
             echo "Reading $sitemap"
-            curl -A "Mozilla/5.0" -s $sitemap | xmlstarlet sel -t -v "//loc" | while read url; do
+            curl -A "Mozilla/5.0" -L -s $sitemap | xmlstarlet sel -t -v "//loc" | while read url; do
               echo "Visiting $url"
-              curl -A "Mozilla/5.0" -s -o /dev/null "$url"
+              curl -A "Mozilla/5.0" -L -s -o /dev/null "$url"
             done
           done < sitemaps.txt
